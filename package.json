@@ -1,0 +1,23 @@
+{
+  "name": "forti-lab-auto-extender",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JenHsuan/forti-lab-auto-extender.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JenHsuan/forti-lab-auto-extender/issues"
+  },
+  "homepage": "https://github.com/JenHsuan/forti-lab-auto-extender#readme",
+  "dependencies": {
+    "puppeteer": "^19.11.1"
+  }
+}
