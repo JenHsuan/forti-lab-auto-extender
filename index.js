@@ -1,13 +1,30 @@
 const puppeteer = require('puppeteer');
+const winston = require('winston');
+//const screenshotPrefix = 'screenshot/';
 
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'log/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'log/combined.log' }),
+  ],
+});
 (async () => {
-  const browser = await puppeteer.launch({headless: 'new'});
+  let browser;
+  
+  try {
+    browser = await puppeteer.launch({headless: 'new'});
+  } catch (e) {
+    console.info("Unable to launch browser mode in sandbox mode. Lauching Chrome without sandbox.");
+    browser = await puppeteer.launch({ headless: 'new', args:['--no-sandbox']});
+  }
+  
   const page = await browser.newPage();
   //1. Visit to the Fortinet developer login page
   await page.goto('https://fndn.fortinet.net/index.php?/login/');
   await page.setViewport({width: 1080, height: 1024});
-  await page.screenshot({path: 'screenshot/screenshot1.png'});
-
+  
   //2. Type email
   await page.type('#auth', process.env.EMAIL);
 
@@ -15,8 +32,7 @@ const puppeteer = require('puppeteer');
   const submitBtn = '#elSignIn_submit';
   await page.waitForSelector(submitBtn);
   await page.click(submitBtn);
-  await page.screenshot({path: 'screenshot/screenshot2.png'});
-
+  
   //4. Type username and password on the SSO page
   await page.waitForSelector('.logoWithPortalIcons');
   await page.type('#id_username', process.env.USERNAME);
@@ -29,23 +45,50 @@ const puppeteer = require('puppeteer');
 
   //6. Visit to the lab page
   await page.waitForSelector('#elSiteTitle');
-  await page.screenshot({path: 'screenshot/screenshot3.png'});
-  await page.goto('https://fndn.fortinet.net/index.php?/fortidemo/instances/&details=handsonlabs&_fromLogin=1');
-  await page.screenshot({path: 'screenshot/screenshot4.png'});
-
+  await page.goto('https://fndn.fortinet.net/index.php?/fortidemo/instances/&details=handsonlabs&_fromLogin=1', { waitUntil: 'load', timeout: 0});
+  
   //7. Click the dropdown
   const dropdownBtn = '.icon_dropdown';
   await page.waitForSelector(dropdownBtn);
   await page.click(dropdownBtn);
-  await page.screenshot({path: 'screenshot/screenshot5.png'});
-  const sizeLinks = await page.$$('.fa-play-circle')
-  await sizeLinks[0].click();
-  await page.screenshot({path: 'screenshot/screenshot6.png'});
+  let sizeLinks = await page.$$('.fa-play-circle')
 
-  //8. Click the first lab
-  const extendBtn = '.fa-clock-o';
-  await page.waitForSelector(extendBtn);
-  await page.click(extendBtn);
-  await page.screenshot({path: 'screenshot/screenshot7.png'});
+  for (let i = 0 ; i < sizeLinks.length; i++) {
+    await sizeLinks[i].click();
+    await page.waitForSelector('.vte-instance-header-title');
+    let element = await page.$('.vte-instance-header-title');
+    let value = await page.evaluate(el => el.textContent, element);
+    value = value ? value.trim() : `${i + 1}`;
+    
+    //8. Click the extend button
+    extendBtn = '.fa-clock-o';
+    await page.waitForSelector('.vte-instance');
+    let handle = await page.$(extendBtn);
+    
+    if (handle) {
+      await handle.evaluate(b => b.click());  
+      logger.log('info', `${value} is extended successfully!`);
+      //await page.screenshot({path: `${screenshotPrefix}${value}-extend.png`});
+    } else {
+      //9. Close the dialog
+      closeBtn = '.ipsDialog_close'
+      handle = await page.$(closeBtn);
+      if (handle) {
+        await handle.evaluate(b => b.click());  
+        logger.log('info', `${value} has already been extended.`);
+        //await page.screenshot({path: `${screenshotPrefix}${value}-close.png`});
+      }
+    }
+    
+    //10. Click the dropdown
+    await page.waitForSelector(dropdownBtn);
+    handle = await page.$(dropdownBtn);
+    if (handle) {
+      await handle.evaluate(b => b.click());  
+      //await page.screenshot({path: `${screenshotPrefix}${value}-dropdown-again.png`});
+      sizeLinks = await page.$$('.fa-play-circle')
+    }
+  }
+
   await browser.close();
 })();
