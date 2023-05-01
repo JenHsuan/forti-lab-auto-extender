@@ -54,7 +54,7 @@ const logger = winston.createLogger({
   let sizeLinks = await page.$$('.fa-play-circle')
 
   for (let i = 0 ; i < sizeLinks.length; i++) {
-    await sizeLinks[i].click();
+    await sizeLinks[i].evaluate(b => b.click()); 
     await page.waitForSelector('.vte-instance-header-title');
     let element = await page.$('.vte-instance-header-title');
     let value = await page.evaluate(el => el.textContent, element);
