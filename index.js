@@ -10,6 +10,14 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: 'log/combined.log' }),
   ],
 });
+
+if (!process.env.EMAIL ||
+    !process.env.USERNAME ||
+    !process.env.PASSWORD) {
+  console.log('Please set the credentials in environment variables');
+  logger.log('error', 'Please set the credentials in environment variables');
+}
+
 (async () => {
   let browser;
   
