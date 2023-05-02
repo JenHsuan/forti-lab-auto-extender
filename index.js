@@ -14,8 +14,11 @@ const logger = winston.createLogger({
 if (!process.env.EMAIL ||
     !process.env.USERNAME ||
     !process.env.PASSWORD) {
-  console.log('Please set the credentials in environment variables');
-  logger.log('error', 'Please set the credentials in environment variables');
+  process.on('exit', function(code) { 
+    console.log('Please set the credentials in environment variables');
+    logger.log('error', 'Please set the credentials in environment variables');
+    return;
+  }); 
 }
 
 (async () => {
