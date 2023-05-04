@@ -16,25 +16,29 @@ const printLog = (level, msg) => {
   logger.log(level, msg);
 }
 
-let requiredCredentials = [];
-if (!process.env.EMAIL) {
-  requiredCredentials.push('EMAIL');
-}
-if (!process.env.USERNAME) {
-  requiredCredentials.push('USERNAME');
-}
-if (!process.env.PASSWORD) {
-  requiredCredentials.push('PASSWORD');
-}
-
-if (requiredCredentials.length > 0) {
-  printLog('error', `Please set the following credentials as environment variables. ${requiredCredentials.join()}`);
-  process.exit(0); 
+const checkCredentials = () => {
+  let requiredCredentials = [];
+  if (!process.env.EMAIL) {
+    requiredCredentials.push('EMAIL');
+  }
+  if (!process.env.USERNAME) {
+    requiredCredentials.push('USERNAME');
+  }
+  if (!process.env.PASSWORD) {
+    requiredCredentials.push('PASSWORD');
+  }
+  
+  if (requiredCredentials.length > 0) {
+    printLog('error', `Please set the following credentials as environment variables. ${requiredCredentials.join()}`);
+    process.exit(0); 
+  }
 }
 
 (async () => {
+  //0. Check credentials
+  checkCredentials();
+
   let browser;
-  
   try {
     browser = await puppeteer.launch({headless: 'new'});
   } catch (e) {
