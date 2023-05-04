@@ -11,11 +11,25 @@ const logger = winston.createLogger({
   ],
 });
 
+const printLog = (level, msg) => {
+  console.log(msg);
+  logger.log(level, msg);
+}
+
 if (!process.env.EMAIL ||
     !process.env.USERNAME ||
     !process.env.PASSWORD) {
-  console.log('Please set the credentials in environment variables');
-  logger.log('error', 'Please set the credentials as environment variables');
+  let requiredCredentials = [];
+  if (!process.env.EMAIL) {
+    requiredCredentials.push('EMAIL');
+  }
+  if (!process.env.USERNAME) {
+    requiredCredentials.push('USERNAME');
+  }
+  if (!process.env.PASSWORD) {
+    requiredCredentials.push('PASSWORD');
+  }
+  printLog('error', `Please set the following credentials as environment variables. ${requiredCredentials.join()}`);
   process.exit(0); 
 }
 
@@ -76,7 +90,7 @@ if (!process.env.EMAIL ||
     
     if (handle) {
       await handle.evaluate(b => b.click());  
-      logger.log('info', `${value} is extended successfully!`);
+      printLog('info', `${value} is extended successfully!`);
       //await page.screenshot({path: `${screenshotPrefix}${value}-extend.png`});
     } else {
       //9. Close the dialog
@@ -84,7 +98,7 @@ if (!process.env.EMAIL ||
       handle = await page.$(closeBtn);
       if (handle) {
         await handle.evaluate(b => b.click());  
-        logger.log('info', `${value} has already been extended.`);
+        printLog('info', `${value} has already been extended.`);
         //await page.screenshot({path: `${screenshotPrefix}${value}-close.png`});
       }
     }
