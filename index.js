@@ -14,10 +14,12 @@ const logger = winston.createLogger({
   ],
 });
 
-const printLog = (level, msg, logHistory) => {
+const printLog = (level, msg, logHistory = null) => {
   console.log(msg);
   logger.log(level, msg);
-  logHistory.push(msg);
+  if (logHistory !== null) {
+    logHistory.push(msg);
+  }
 }
 
 const checkCredentials = () => {
@@ -33,7 +35,7 @@ const checkCredentials = () => {
   }
   
   if (requiredCredentials.length > 0) {
-    printLog('error', `Please set the following credentials as environment variables. ${requiredCredentials.join()}`);
+    printLog('error', `Please set the following credentials as environment variables. ${requiredCredentials.join()}`, logHistory);
     process.exit(0); 
   }
 }
@@ -97,7 +99,7 @@ const checkCredentials = () => {
     
     if (handle) {
       await handle.evaluate(b => b.click());  
-      printLog('info', `${value} is extended successfully!`);
+      printLog('info', `${value} is extended successfully!`, logHistory);
       //await page.screenshot({path: `${screenshotPrefix}${value}-extend.png`});
     } else {
       //9. Close the dialog
@@ -105,7 +107,7 @@ const checkCredentials = () => {
       handle = await page.$(closeBtn);
       if (handle) {
         await handle.evaluate(b => b.click());  
-        printLog('info', `${value} has already been extended.`);
+        printLog('info', `${value} has already been extended.`, logHistory;
         //await page.screenshot({path: `${screenshotPrefix}${value}-close.png`});
       }
     }
@@ -139,9 +141,9 @@ if (process.env.LINE_BOT_ID && process.env.LINE_ACCESS_TOKEN) {
     }
   })
   .then(function (response) {
-    printLog(response.status);
+    printLog('info', response.status);
   })
   .catch(function (error) {
-    printLog(error);
+    printLog('error', error);
   });
 }
