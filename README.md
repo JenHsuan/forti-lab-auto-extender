@@ -7,6 +7,8 @@ You have to set the following environment variables before launching this script
 export EMAIL=example@example.com
 export USERNAME=tom
 export PASSWORD=1234
+export LINE_BOT_ID={your LINE BOT ID}
+export LINE_ACCESS_TOKEN={your LINE BOT access token}
 ```
 
 # Considerations

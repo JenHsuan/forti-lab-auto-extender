@@ -1,5 +1,8 @@
 const puppeteer = require('puppeteer');
 const winston = require('winston');
+const axios = require('axios');
+const logHistory = [];
+
 //const screenshotPrefix = 'screenshot/';
 
 const logger = winston.createLogger({
@@ -11,9 +14,10 @@ const logger = winston.createLogger({
   ],
 });
 
-const printLog = (level, msg) => {
+const printLog = (level, msg, logHistory) => {
   console.log(msg);
   logger.log(level, msg);
+  logHistory.push(msg);
 }
 
 const checkCredentials = () => {
@@ -118,3 +122,26 @@ const checkCredentials = () => {
 
   await browser.close();
 })();
+
+if (process.env.LINE_BOT_ID && process.env.LINE_ACCESS_TOKEN) {
+  axios.post('https://api.line.me/v2/bot/message/push', {
+    "to": process.env.LINE_BOT_ID,
+    "messages":[
+        {
+            "type":"text",
+            "text": logHistory.join('\n')
+        }
+    ]
+  }, {
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.LINE_ACCESS_TOKEN}` 
+    }
+  })
+  .then(function (response) {
+    printLog(response.status);
+  })
+  .catch(function (error) {
+    printLog(error);
+  });
+}
