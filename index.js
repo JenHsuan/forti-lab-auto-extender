@@ -107,7 +107,7 @@ const checkCredentials = () => {
       handle = await page.$(closeBtn);
       if (handle) {
         await handle.evaluate(b => b.click());  
-        printLog('info', `${value} has already been extended.`, logHistory;
+        printLog('info', `${value} has already been extended.`, logHistory);
         //await page.screenshot({path: `${screenshotPrefix}${value}-close.png`});
       }
     }
@@ -123,27 +123,29 @@ const checkCredentials = () => {
   }
 
   await browser.close();
-})();
 
-if (process.env.LINE_BOT_ID && process.env.LINE_ACCESS_TOKEN) {
-  axios.post('https://api.line.me/v2/bot/message/push', {
-    "to": process.env.LINE_BOT_ID,
-    "messages":[
-        {
-            "type":"text",
-            "text": logHistory.join('\n')
-        }
-    ]
-  }, {
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.LINE_ACCESS_TOKEN}` 
-    }
-  })
-  .then(function (response) {
-    printLog('info', response.status);
-  })
-  .catch(function (error) {
-    printLog('error', error);
-  });
-}
+  console.log(logHistory.join('\n'))
+
+  if (process.env.LINE_BOT_ID && process.env.LINE_ACCESS_TOKEN) {
+    axios.post('https://api.line.me/v2/bot/message/push', {
+      "to": process.env.LINE_BOT_ID,
+      "messages":[
+          {
+              "type":"text",
+              "text": logHistory.join('\n')
+          }
+      ]
+    }, {
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.LINE_ACCESS_TOKEN}` 
+      }
+    })
+    .then(function (response) {
+      printLog('info', response.status);
+    })
+    .catch(function (error) {
+      printLog('error', error);
+    });
+  }
+})();
