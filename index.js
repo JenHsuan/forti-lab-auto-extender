@@ -124,8 +124,6 @@ const checkCredentials = () => {
 
   await browser.close();
 
-  console.log(logHistory.join('\n'))
-
   if (process.env.LINE_BOT_ID && process.env.LINE_ACCESS_TOKEN) {
     axios.post('https://api.line.me/v2/bot/message/push', {
       "to": process.env.LINE_BOT_ID,
